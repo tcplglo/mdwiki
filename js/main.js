@@ -527,12 +527,12 @@
             currentHashString === '#'||
             currentHashString === '#!')
         {
-            newHashString = '#!index.md';
+            newHashString = '#!Home.md';
         }
         else if (currentHashString.startsWith ('#!') &&
                  currentHashString.endsWith('/')
                 ) {
-            newHashString = currentHashString + 'index.md';
+            newHashString = currentHashString + 'Home.md';
         }
         if (newHashString)
             window.location.hash = newHashString;

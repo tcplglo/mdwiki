@@ -444,7 +444,10 @@ var inline = {
   url: noop,
   tag: /^<!--[\s\S]*?-->|^<\/?\w+(?:"[^"]*"|'[^']*'|[^'">])*?>/,
   link: /^!?\[(inside)\]\(href\)/,
+  //link: /\[\[(inside)\|(href)\]\]|\[\[(href)]\]/,
+  glink: /\[\[(inside)\|(href)\]\]/,
   reflink: /^!?\[(inside)\]\s*\[([^\]]*)\]/,
+  greflink: /\[\[(inside)\]\]/,
   nolink: /^!?\[((?:\[[^\]]*\]|[^\[\]])*)\]/,
   strong: /^__([\s\S]+?)__(?!_)|^\*\*([\s\S]+?)\*\*(?!\*)/,
   em: /^\b_((?:__|[\s\S])+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/,
@@ -457,14 +460,25 @@ var inline = {
 inline._inside = /(?:\[[^\]]*\]|[^\]]|\](?=[^\[]*\]))*/;
 inline._href = /\s*<?(.*?)>?(?:\s+['"]([\s\S]*?)['"])?\s*/;
 
+
 inline.link = replace(inline.link)
   ('inside', inline._inside)
   ('href', inline._href)
+  ();
+  
+inline.glink = replace(inline.glink)
+  ('inside', inline._inside)
+  ('href', inline._href)
+  ();
+
+inline.greflink = replace(inline.greflink)
+  ('inside', inline._inside)
   ();
 
 inline.reflink = replace(inline.reflink)
   ('inside', inline._inside)
   ();
+
 
 /**
  * Normal Inline Grammar
@@ -605,6 +619,16 @@ InlineLexer.prototype.output = function(src) {
       continue;
     }
 
+    // glink
+    if (cap = this.rules.glink.exec(src)) {
+      src = src.substring(cap[0].length);
+      out += this.outputLink(cap, {
+        href: cap[2].split(' ').join('-') + ".md",
+        title: cap[3]
+      });
+      continue;
+    }
+    
     // link
     if (cap = this.rules.link.exec(src)) {
       src = src.substring(cap[0].length);
@@ -615,6 +639,19 @@ InlineLexer.prototype.output = function(src) {
       continue;
     }
 
+    // greflink
+    if (cap = this.rules.greflink.exec(src)) {
+
+      src = src.substring(cap[0].length);
+      
+      out += this.outputLink(cap, {
+        href: cap[0].replace('[[','').replace(']]','').split(' ').join('-') + ".md",
+        title: cap[0].replace('[[','').replace(']]','')
+      });
+      
+      continue;
+    }
+    
     // reflink, nolink
     if ((cap = this.rules.reflink.exec(src))
         || (cap = this.rules.nolink.exec(src))) {
