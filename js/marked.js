@@ -731,7 +731,8 @@ InlineLexer.prototype.output = function(src) {
  */
 
 InlineLexer.prototype.outputLink = function(cap, link) {
-  if (cap[0][0] !== '!') {
+  //if (cap[0][0] !== '!') {
+  if (! cap[0].startsWith('[[image')) {
     return '<a href="'
       + escape(link.href)
       + '"'
@@ -745,7 +746,7 @@ InlineLexer.prototype.outputLink = function(cap, link) {
       + '</a>';
   } else {
     return '<img src="'
-      + escape(link.href)
+      + escape(link.href).replace('.md','')
       + '" alt="'
       + escape(cap[1])
       + '"'
