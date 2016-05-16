@@ -8,3 +8,8 @@ app/components
 md/
 .DS_Store
 .AppleDouble
+.tscache/
+tmp/
+typings/
+ts_compiled/
+tsd.json
